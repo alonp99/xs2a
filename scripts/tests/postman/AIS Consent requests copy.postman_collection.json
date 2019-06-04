@@ -1,7 +1,7 @@
 {
 	"info": {
-    "_postman_id": "86f31e45-c7f9-4fd7-9b2e-a2ff63e23924",
-		"name": "AIS Consent requests",
+		"_postman_id": "354053fb-8eeb-4600-9116-b8c0e5528a5b",
+		"name": "AIS Consent requests copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -843,6 +843,140 @@
 							"response": []
 						},
 						{
+							"name": "3.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "4 Update PSU Data for consents finalization av",
 							"event": [
 								{
@@ -892,7 +1026,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -1403,7 +1537,7 @@
 											"    pm.expect(jsonData).to.have.property('scaMethods');",
 											"    const scaMethods = jsonData.scaMethods;",
 											"    ",
-											"    pm.expect(scaMethods.length).to.eql(2);",
+											"    pm.expect(scaMethods.length).to.eql(3);",
 											"    ",
 											"    pm.expect(scaMethods[0]).to.have.property('authenticationType');",
 											"    pm.expect(scaMethods[0].authenticationType).to.eql('SMS_OTP');",
@@ -1495,7 +1629,7 @@
 											"    const chosenScaMethod = jsonData.chosenScaMethod;",
 											"    ",
 											"    pm.expect(chosenScaMethod).to.have.property('authenticationType');",
-											"    pm.expect(chosenScaMethod.authenticationType).to.eql('SMS_OTP');",
+											"    pm.expect(chosenScaMethod.authenticationType).to.eql('SMS');",
 											"    ",
 											"    pm.expect(chosenScaMethod).to.have.property('authenticationMethodId');",
 											"    pm.expect(chosenScaMethod.authenticationMethodId).to.eql('sms');",
@@ -1537,7 +1671,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"authenticationMethodId\": \"SMS_OTP\"        \n}"
+									"raw": "{\n    \"authenticationMethodId\": \"sms\"        \n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -1554,6 +1688,140 @@
 									]
 								},
 								"description": "This method update PSU data on the consents  resource if needed.  It may authorise a consent within the Embedded SCA Approach where needed.  Independently from the SCA Approach it supports e.g. the selection of  the authentication method and a non-SCA PSU authentication.  This methods updates PSU data on the cancellation authorisation resource if needed.   There are several possible Update PSU Data requests in the context of a consent request if needed,  which depends on the SCA approach:  * Redirect SCA Approach:   A specific Update PSU Data Request is applicable for      * the selection of authentication methods, before choosing the actual SCA approach. * Decoupled SCA Approach:   A specific Update PSU Data Request is only applicable for   * adding the PSU Identification, if not provided yet in the Payment Initiation Request or the Account Information Consent Request, or if no OAuth2 access token is used, or   * the selection of authentication methods. * Embedded SCA Approach:    The Update PSU Data Request might be used    * to add credentials as a first factor authentication data of the PSU and   * to select the authentication method and   * transaction authorisation.  The SCA Approach might depend on the chosen SCA method.  For that reason, the following possible Update PSU Data request can apply to all SCA approaches:  * Select an SCA method in case of several SCA methods are available for the customer.  There are the following request types on this access path:   * Update PSU Identification   * Update PSU Authentication   * Select PSU Autorization Method      WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change.   * Transaction Authorisation     WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change. "
+							},
+							"response": []
+						},
+						{
+							"name": "4.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
 							},
 							"response": []
 						},
@@ -1607,7 +1875,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -2915,6 +3183,140 @@
 							"response": []
 						},
 						{
+							"name": "3.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "4 Update PSU Data for consents finalization",
 							"event": [
 								{
@@ -2964,7 +3366,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -3537,6 +3939,140 @@
 										"{{authorisation_id}}",
 										"status",
 										"FINALISED"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
 									]
 								}
 							},
@@ -4321,6 +4857,140 @@
 							"response": []
 						},
 						{
+							"name": "5.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "6 Update PSU Data for consents finalization",
 							"event": [
 								{
@@ -4370,7 +5040,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -5882,6 +6552,140 @@
 							"response": []
 						},
 						{
+							"name": "3.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "4 Update PSU Data for consents finalization global",
 							"event": [
 								{
@@ -5931,7 +6735,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/{{consent_id}}/authorisations/{{authorisation_id}}",
@@ -6173,440 +6977,440 @@
 									""
 								]
 							}
-            }
-          ],
-          "_postman_isSubFolder": true
-        }
-      ]
-    },
-    {
-      "name": "Errorful requests",
-      "item": [
-        {
-          "name": "Consent unknown",
-          "item": [
-            {
-              "name": "1. Get Consent",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "d5b5adf1-96b8-44ec-88b9-9828dce2d3a7",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "2 Delete Consent",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "25e1bc1b-d708-4b57-ae50-c58f01629dc9",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": ""
-                },
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id"
-                  ]
-                },
-                "description": "The TPP can delete an account information consent object if needed."
-              },
-              "response": []
-            },
-            {
-              "name": "3 Start the authorisation process for a consent av",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "1957eb90-4bd3-4751-9256-ba7e705265d9",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                },
-                {
-                  "listen": "prerequest",
-                  "script": {
-                    "id": "9a3b9e5d-5391-4c0e-b91c-beab5542e7e3",
-                    "exec": [
-                      ""
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "PSU-ID",
-                    "value": "{{psu_id_none}}"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": ""
-                },
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id",
-                    "authorisations"
-                  ]
-                },
-                "description": "Create an authorisation sub-resource and start the authorisation process of a consent.  The message might in addition transmit authentication and authorisation related data.  his method is iterated n times for a n times SCA authorisation in a  corporate context, each creating an own authorisation sub-endpoint for  the corresponding PSU authorising the consent.  The ASPSP might make the usage of this access method unnecessary,  since the related authorisation resource will be automatically created by  the ASPSP after the submission of the consent data with the first POST consents call.  The start authorisation process is a process which is needed for creating a new authorisation  or cancellation sub-resource.   This applies in the following scenarios:    * The ASPSP has indicated with an 'startAuthorisation' hyperlink in the preceeding Payment      Initiation Response that an explicit start of the authorisation process is needed by the TPP.      The 'startAuthorisation' hyperlink can transport more information about data which needs to be      uploaded by using the extended forms.     * 'startAuthorisationWithPsuIdentfication',      * 'startAuthorisationWithPsuAuthentication'     * 'startAuthorisationWithAuthentciationMethodSelection'    * The related payment initiation cannot yet be executed since a multilevel SCA is mandated.   * The ASPSP has indicated with an 'startAuthorisation' hyperlink in the preceeding      Payment Cancellation Response that an explicit start of the authorisation process is needed by the TPP.      The 'startAuthorisation' hyperlink can transport more information about data which needs to be uploaded      by using the extended forms as indicated above.   * The related payment cancellation request cannot be applied yet since a multilevel SCA is mandate for      executing the cancellation.   * The signing basket needs to be authorised yet. "
-              },
-              "response": []
-            },
-            {
-              "name": "4 Get Consent Authorisation Sub-Resources Request",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "24a05f20-8df4-406f-9638-7694ffe5979c",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id",
-                    "authorisations"
-                  ]
-                },
-                "description": "Read a list of all authorisation subresources IDs which have been created.  This function returns an array of hyperlinks to all generated authorisation sub-resources. "
-              },
-              "response": []
-            },
-            {
-              "name": "5 Read the SCA status of the consent authorisation",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "a83e55e2-cbf1-4ee0-a09c-d93e63f13091",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations/{{authorisation_id}}",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id",
-                    "authorisations",
-                    "{{authorisation_id}}"
-                  ]
-                },
-                "description": "This method returns the SCA status of a consent initiation's authorisation sub-resource. "
-              },
-              "response": []
-            },
-            {
-              "name": "6 Update PSU Data for consent",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "1eb038d3-b0d2-45df-bf95-346fa27b3d45",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "PSU-ID",
-                    "value": "{{psu_id_none}}"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\t\"psuData\": {\n\t\t\"password\": \"{{psu_id_password}}\"\n\t}\n}"
-                },
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations/{{authorisation_id}}",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id",
-                    "authorisations",
-                    "{{authorisation_id}}"
-                  ]
-                },
-                "description": "This method update PSU data on the consents  resource if needed.  It may authorise a consent within the Embedded SCA Approach where needed.  Independently from the SCA Approach it supports e.g. the selection of  the authentication method and a non-SCA PSU authentication.  This methods updates PSU data on the cancellation authorisation resource if needed.   There are several possible Update PSU Data requests in the context of a consent request if needed,  which depends on the SCA approach:  * Redirect SCA Approach:   A specific Update PSU Data Request is applicable for      * the selection of authentication methods, before choosing the actual SCA approach. * Decoupled SCA Approach:   A specific Update PSU Data Request is only applicable for   * adding the PSU Identification, if not provided yet in the Payment Initiation Request or the Account Information Consent Request, or if no OAuth2 access token is used, or   * the selection of authentication methods. * Embedded SCA Approach:    The Update PSU Data Request might be used    * to add credentials as a first factor authentication data of the PSU and   * to select the authentication method and   * transaction authorisation.  The SCA Approach might depend on the chosen SCA method.  For that reason, the following possible Update PSU Data request can apply to all SCA approaches:  * Select an SCA method in case of several SCA methods are available for the customer.  There are the following request types on this access path:   * Update PSU Identification   * Update PSU Authentication   * Select PSU Autorization Method      WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change.   * Transaction Authorisation     WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change. "
-              },
-              "response": []
-            },
-            {
-              "name": "7 Consent status request",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "id": "28ab1dd5-91be-4d5c-8787-d15d44c4b931",
-                    "exec": [
-                      "pm.test(\"Status code is 403\", () => {",
-                      "    pm.response.to.have.status(403);",
-                      "});",
-                      "",
-                      "pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
-                      "    const jsonData = pm.response.json();",
-                      "    const error = jsonData.tppMessages[0];",
-                      "    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
-                      "})"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "X-Request-ID",
-                    "value": "{{x_request_id}}"
-                  }
-                ],
-                "url": {
-                  "raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/status",
-                  "protocol": "{{protocol}}",
-                  "host": [
-                    "{{url_xs2a}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "consents",
-                    "unknown_id",
-                    "status"
-                  ]
-                },
-                "description": "Read the status of an account information consent resource."
-              },
-              "response": []
 						}
 					],
 					"_postman_isSubFolder": true
 				}
-      ],
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "id": "12eb8ae2-1cb7-406e-80f8-93c9c6bf0e11",
-            "type": "text/javascript",
-            "exec": [
-              ""
-            ]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "id": "3fee87df-5357-49f5-badf-b6df4e81f737",
-            "type": "text/javascript",
-            "exec": [
-              ""
-            ]
-          }
-        }
-      ]
-    }
-  ]
+			]
+		},
+		{
+			"name": "Errorful requests",
+			"item": [
+				{
+					"name": "Consent unknown",
+					"item": [
+						{
+							"name": "1. Get Consent",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d5b5adf1-96b8-44ec-88b9-9828dce2d3a7",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2 Delete Consent",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "25e1bc1b-d708-4b57-ae50-c58f01629dc9",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id"
+									]
+								},
+								"description": "The TPP can delete an account information consent object if needed."
+							},
+							"response": []
+						},
+						{
+							"name": "3 Start the authorisation process for a consent av",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1957eb90-4bd3-4751-9256-ba7e705265d9",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "9a3b9e5d-5391-4c0e-b91c-beab5542e7e3",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "PSU-ID",
+										"value": "{{psu_id_none}}"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id",
+										"authorisations"
+									]
+								},
+								"description": "Create an authorisation sub-resource and start the authorisation process of a consent.  The message might in addition transmit authentication and authorisation related data.  his method is iterated n times for a n times SCA authorisation in a  corporate context, each creating an own authorisation sub-endpoint for  the corresponding PSU authorising the consent.  The ASPSP might make the usage of this access method unnecessary,  since the related authorisation resource will be automatically created by  the ASPSP after the submission of the consent data with the first POST consents call.  The start authorisation process is a process which is needed for creating a new authorisation  or cancellation sub-resource.   This applies in the following scenarios:    * The ASPSP has indicated with an 'startAuthorisation' hyperlink in the preceeding Payment      Initiation Response that an explicit start of the authorisation process is needed by the TPP.      The 'startAuthorisation' hyperlink can transport more information about data which needs to be      uploaded by using the extended forms.     * 'startAuthorisationWithPsuIdentfication',      * 'startAuthorisationWithPsuAuthentication'     * 'startAuthorisationWithAuthentciationMethodSelection'    * The related payment initiation cannot yet be executed since a multilevel SCA is mandated.   * The ASPSP has indicated with an 'startAuthorisation' hyperlink in the preceeding      Payment Cancellation Response that an explicit start of the authorisation process is needed by the TPP.      The 'startAuthorisation' hyperlink can transport more information about data which needs to be uploaded      by using the extended forms as indicated above.   * The related payment cancellation request cannot be applied yet since a multilevel SCA is mandate for      executing the cancellation.   * The signing basket needs to be authorised yet. "
+							},
+							"response": []
+						},
+						{
+							"name": "4 Get Consent Authorisation Sub-Resources Request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "24a05f20-8df4-406f-9638-7694ffe5979c",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id",
+										"authorisations"
+									]
+								},
+								"description": "Read a list of all authorisation subresources IDs which have been created.  This function returns an array of hyperlinks to all generated authorisation sub-resources. "
+							},
+							"response": []
+						},
+						{
+							"name": "5 Read the SCA status of the consent authorisation",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a83e55e2-cbf1-4ee0-a09c-d93e63f13091",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations/{{authorisation_id}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id",
+										"authorisations",
+										"{{authorisation_id}}"
+									]
+								},
+								"description": "This method returns the SCA status of a consent initiation's authorisation sub-resource. "
+							},
+							"response": []
+						},
+						{
+							"name": "6 Update PSU Data for consent",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1eb038d3-b0d2-45df-bf95-346fa27b3d45",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "PSU-ID",
+										"value": "{{psu_id_none}}"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"psuData\": {\n\t\t\"password\": \"{{psu_id_password}}\"\n\t}\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/authorisations/{{authorisation_id}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id",
+										"authorisations",
+										"{{authorisation_id}}"
+									]
+								},
+								"description": "This method update PSU data on the consents  resource if needed.  It may authorise a consent within the Embedded SCA Approach where needed.  Independently from the SCA Approach it supports e.g. the selection of  the authentication method and a non-SCA PSU authentication.  This methods updates PSU data on the cancellation authorisation resource if needed.   There are several possible Update PSU Data requests in the context of a consent request if needed,  which depends on the SCA approach:  * Redirect SCA Approach:   A specific Update PSU Data Request is applicable for      * the selection of authentication methods, before choosing the actual SCA approach. * Decoupled SCA Approach:   A specific Update PSU Data Request is only applicable for   * adding the PSU Identification, if not provided yet in the Payment Initiation Request or the Account Information Consent Request, or if no OAuth2 access token is used, or   * the selection of authentication methods. * Embedded SCA Approach:    The Update PSU Data Request might be used    * to add credentials as a first factor authentication data of the PSU and   * to select the authentication method and   * transaction authorisation.  The SCA Approach might depend on the chosen SCA method.  For that reason, the following possible Update PSU Data request can apply to all SCA approaches:  * Select an SCA method in case of several SCA methods are available for the customer.  There are the following request types on this access path:   * Update PSU Identification   * Update PSU Authentication   * Select PSU Autorization Method      WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change.   * Transaction Authorisation     WARNING: This method need a reduced header,      therefore many optional elements are not present.      Maybe in a later version the access path will change. "
+							},
+							"response": []
+						},
+						{
+							"name": "7 Consent status request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "28ab1dd5-91be-4d5c-8787-d15d44c4b931",
+										"exec": [
+											"pm.test(\"Status code is 403\", () => {",
+											"    pm.response.to.have.status(403);",
+											"});",
+											"",
+											"pm.test(\"Error code is CONSENT_UNKNOWN\", () => {",
+											"    const jsonData = pm.response.json();",
+											"    const error = jsonData.tppMessages[0];",
+											"    pm.expect(error.code).to.eql('CONSENT_UNKNOWN');",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Request-ID",
+										"value": "{{x_request_id}}"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_xs2a}}/v1/consents/unknown_id/status",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_xs2a}}"
+									],
+									"path": [
+										"v1",
+										"consents",
+										"unknown_id",
+										"status"
+									]
+								},
+								"description": "Read the status of an account information consent resource."
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "12eb8ae2-1cb7-406e-80f8-93c9c6bf0e11",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3fee87df-5357-49f5-badf-b6df4e81f737",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
 }

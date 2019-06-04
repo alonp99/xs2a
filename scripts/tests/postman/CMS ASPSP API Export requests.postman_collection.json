@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b1dec47a-98c9-48a1-97a3-207ce1a279a1",
+		"_postman_id": "17fa7407-7192-4b10-a6ec-a17dfc357cee",
 		"name": "CMS ASPSP API Export requests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -49,32 +49,43 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "*/*"
+								"value": "*/*",
+								"type": "text"
 							},
 							{
 								"key": "Content-Type",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							},
 							{
 								"key": "date",
-								"value": "Sun, 11 Aug 2019 15:02:37 GMT"
+								"value": "Sun, 11 Aug 2019 15:02:37 GMT",
+								"type": "text"
 							},
 							{
 								"key": "tpp-qwac-certificate",
-								"value": "qwac certificate"
+								"value": "qwac certificate",
+								"type": "text"
 							},
 							{
 								"key": "x-request-id",
-								"value": "{{x_request_id}}"
+								"value": "{{x_request_id}}",
+								"type": "text"
 							},
 							{
 								"key": "PSU-ID",
-								"value": "{{psu_id_none}}"
+								"value": "{{psu_id_none}}",
+								"type": "text"
 							},
 							{
 								"key": "TPP-Explicit-Authorisation-Preferred",
-								"type": "text",
-								"value": "true"
+								"value": "true",
+								"type": "text"
+							},
+							{
+								"key": "psu-ip-address",
+								"value": "{{ip_address}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -130,10 +141,6 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/psu-api/v1/ais/consent/redirect/{{redirect_id}}",
 							"protocol": "{{protocol}}",
@@ -222,10 +229,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/ais/consents/psu",
 							"protocol": "{{protocol}}",
@@ -314,10 +317,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/ais/consents/tpp/{{tpp_id}}",
 							"protocol": "{{protocol}}",
@@ -375,10 +374,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/ais/consents/account/{{aspsp_account_id}}",
 							"protocol": "{{protocol}}",
@@ -524,10 +519,6 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/psu-api/v1/payment/redirect/{{redirect_id}}",
 							"protocol": "{{protocol}}",
@@ -615,10 +606,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/pis/payments/psu",
 							"protocol": "{{protocol}}",
@@ -707,10 +694,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/pis/payments/tpp/{{tpp_id}}",
 							"protocol": "{{protocol}}",
@@ -767,10 +750,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/pis/payments/account/{{aspsp_account_id}}",
 							"protocol": "{{protocol}}",
@@ -931,10 +910,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/piis/consents/psu",
 							"protocol": "{{protocol}}",
@@ -1023,10 +998,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/piis/consents/tpp/{{tpp_id}}",
 							"protocol": "{{protocol}}",
@@ -1084,10 +1055,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{protocol}}://{{url_cms}}/aspsp-api/v1/piis/consents/account/{{aspsp_account_id}}",
 							"protocol": "{{protocol}}",

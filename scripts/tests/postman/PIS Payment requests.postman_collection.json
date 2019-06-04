@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2a8a7983-cb8d-4ac4-8c83-f2f845532c26",
+		"_postman_id": "4ea96982-9e03-4cce-aa36-0d02aff0a5ee",
 		"name": "PIS Payment requests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -101,9 +101,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
@@ -630,9 +627,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
@@ -885,6 +879,140 @@
 							"response": []
 						},
 						{
+							"name": "3.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"value": "{{access_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "4 Update PSU data for payment initiation finalized",
 							"event": [
 								{
@@ -942,7 +1070,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/{{payment_service}}/{{payment_product}}/{{payment_id}}/authorisations/{{authorisation_id}}",
@@ -1282,9 +1410,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
@@ -1464,7 +1589,7 @@
 											"    pm.expect(jsonData).to.have.property('scaMethods');",
 											"    const scaMethods = jsonData.scaMethods;",
 											"    ",
-											"    pm.expect(scaMethods.length).to.eql(2);",
+											"    pm.expect(scaMethods.length).to.eql(3);",
 											"    ",
 											"    pm.expect(scaMethods[0]).to.have.property('authenticationType');",
 											"    pm.expect(scaMethods[0].authenticationType).to.eql('SMS_OTP');",
@@ -1565,7 +1690,7 @@
 											"    const chosenScaMethod = jsonData.chosenScaMethod;",
 											"    ",
 											"    pm.expect(chosenScaMethod).to.have.property('authenticationType');",
-											"    pm.expect(chosenScaMethod.authenticationType).to.eql('SMS_OTP');",
+											"    pm.expect(chosenScaMethod.authenticationType).to.eql('SMS');",
 											"    ",
 											"    pm.expect(chosenScaMethod).to.have.property('authenticationMethodId');",
 											"    pm.expect(chosenScaMethod.authenticationMethodId).to.eql('sms');",
@@ -1629,6 +1754,140 @@
 							"response": []
 						},
 						{
+							"name": "4.1 Get access token form IDP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "a5180f8b-82da-47cf-9c83-d169798fb964",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"access_token exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('access_token');",
+											"    const access_token = jsonData.access_token;",
+											"    ",
+											"pm.globals.set(\"access_token\", \"Bearer \"+access_token);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "aspsp-mock",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "83004f1b-0783-476a-8873-9815d4b65587",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "aspsp",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "zzz",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{protocol}}://{{url_idp}}/auth/realms/xs2a/protocol/openid-connect/token",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_idp}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"xs2a",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.2 Get TAN",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "83721020-fac4-49c5-8ac8-023212d11233",
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"tanNumber exists\", () => {",
+											"    pm.expect(jsonData).to.have.property('tanNumber');",
+											"    const tanNumber = jsonData.tanNumber;",
+											"    ",
+											"pm.globals.set(\"tanNumber\", tanNumber);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "authorization",
+										"type": "text",
+										"value": "{{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{protocol}}://{{url_aspsp_mock}}/consent/tan/{{psu_id_single}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{url_aspsp_mock}}"
+									],
+									"path": [
+										"consent",
+										"tan",
+										"{{psu_id_single}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "5 Update PSU data for payment initiation finalized",
 							"event": [
 								{
@@ -1686,7 +1945,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"scaAuthenticationData\": \"{{tan}}\"\n}"
+									"raw": "{\n\t\"scaAuthenticationData\": \"{{tanNumber}}\"\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{url_xs2a}}/v1/{{payment_service}}/{{payment_product}}/{{payment_id}}/authorisations/{{authorisation_id}}",
@@ -2026,9 +2285,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
@@ -2323,10 +2579,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
-											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
 										],
@@ -2614,9 +2866,6 @@
 											"    pm.expect(jsonData).to.have.property('paymentId');",
 											"});",
 											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 											"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
@@ -3091,10 +3340,6 @@
 											"",
 											"pm.test(\"Payment Id exists\", () => {",
 											"    pm.expect(jsonData).to.have.property('paymentId');",
-											"});",
-											"",
-											"pm.test(\"Transaction Fee Indicator exists\", () => {",
-											"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
 											"});",
 											"",
 											"pm.globals.set(\"payment_id\", jsonData.paymentId);",
@@ -3694,9 +3939,6 @@
 									"    pm.expect(jsonData).to.have.property('paymentId');",
 									"});",
 									"",
-									"pm.test(\"Transaction Fee Indicator exists\", () => {",
-									"    pm.expect(jsonData).to.have.property('transactionFeeIndicator');",
-									"});",
 									"",
 									"pm.globals.set(\"payment_id\", jsonData.paymentId);",
 									"pm.globals.set(\"updatePsuAuthentication\", jsonData._links.updatePsuAuthentication);"
